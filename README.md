@@ -1,18 +1,18 @@
 # Tesina
-# Sistema de Ficha de Inscripción PRoA 2026
+# Sistema de Ficha de Solicitud de Ingreso PRoA Río tercero
 
-Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sistema digital de fichas de inscripción para estudiantes que desean ingresar a primer año del nivel secundario.
+Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sistema digital de fichas de inscripción para estudiantes que desean cambiarse de colegio al colegio PRoA en nivel secundario.
 
 ## Objetivos del Proyecto
 
-- Digitalizar el proceso de inscripción escolar.
-- Recolectar datos completos del estudiante y su tutor de forma segura.
-- Facilitar la gestión y almacenamiento de inscripciones.
+- Digitalizar el proceso de pases escolares.
+- Recolectar datos completos de los estudiante y su tutor de una formas practica.
+- Facilitar la gestión y almacenamiento de solicitudes de ingreso para la escuela.
 
 ## Funcionalidades
 
-- Formulario de inscripción para alumnos .
-- Almacenamiento seguro en base de datos.
+- Formulario de solicitud de ingreso para alumnos .
+- Almacenamiento seguro en datos de los estudiantes inscriptos.
 - Interfaz amigable y responsive.
 
 ## Datos requeridos
@@ -22,10 +22,10 @@ Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sis
 - Apellido
 - Edad
 - DNI
-- Escuela primaria cursada
-- ¿Es repitente?
+- Escuela secundario cursado
+- ¿Es repitente?/¿Que año?
 - Domicilio
-- Datos a saber
+- Año cursado y cual querra ingresar
   
 ### Del Tutor:
 - Nombre y Apellido
