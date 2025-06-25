@@ -42,4 +42,10 @@ Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sis
 ## Licencia
 Este proyecto es parte de un trabajo académico. Uso libre para fines educativos tanto del colegio propio o no.
 
----
+## AUTORES
+- Amulen Gutierrez
+Gmail: aagutierrez@escuelasproa.edu.ar
+GitHub: Amu Gutierrez
+- Sofia Lugani
+Gmail: slugani@escuelasproa.edu.ar
+GitHub: sofilugani
