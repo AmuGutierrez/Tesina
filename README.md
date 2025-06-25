@@ -32,7 +32,7 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 - Edad
 - DNI
 - Escuela secundario cursado
-- ¿Es repitente?/¿Que año?
+- Repitente/ ¿Qué año repitió?
 - Domicilio
 - Año cursado y cual querra ingresar
 
@@ -49,7 +49,8 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 - Nombre y Apellido
 - Correo electrónico
 - DNI
-- Domicilio
+- Numero de Telefono
+
   
 - First and Last Name
 - E-mail address
