@@ -34,9 +34,10 @@ Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sis
 - Domicilio
 
 ## Tecnologías a utilizar
-- Frontend: HTML, CSS, JavaScript
-- Backend: PHP / Python (Django o Flask) / Node.js
-- Base de Datos: MySQL / PostgreSQL / SQLite
+-Frontend: HTML, CSS, JavaScript
+-Backend: Python ( Flask) 
+-Base de Datos: MySQL / XAMPP
+
 
 ## Licencia
 Este proyecto es parte de un trabajo académico. Uso libre para fines educativos tanto del colegio propio o no.
