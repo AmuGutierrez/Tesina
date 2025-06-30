@@ -17,10 +17,9 @@ Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sis
 -Backend: Python ( Flask) 
 -Base de Datos: MySQL / XAMPP
 
-
 ## Licencia
 Este proyecto es parte de un trabajo académico. Uso libre para fines educativos tanto del colegio propio o no.
-
+###
 ## Application Form System PRoA Río tercero
 This project is part of a dissertation, which aims to develop a digital enrollment form system for students who wish to transfer to PRoA high school.
 
