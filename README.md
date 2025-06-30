@@ -42,7 +42,7 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 ## License
 This project is part of an ademic work. Free use for educational purposes of the school itself or not.
 
-## AUTORES
+## AUTORES/AUTHORS
 - Amulen Gutierrez
 Gmail: aagutierrez@escuelasproa.edu.ar
 GitHub: Amu Gutierrez
