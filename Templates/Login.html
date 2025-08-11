@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Inscripciones - Login</title>
-  <link rel="stylesheet" href="/Statics/StYles/login.css">
+  <link rel="stylesheet" href="/Static/styles.css">
 </head>
-<body>
-  <div class="contenedor">
+<body class="login-body">
+  <div class="login-contenedor">
     <h1>Bienvenido/a al Sistema de Inscripciones </h1>
     <h2>Escuela PRoA</h2>
-    <form action="#" method="POST">
-      <label for="usuario">Usuario:</label>
+    <form action="{{ url_for('login') }}" method="POST">
+      <label for="usuario">Dirección de Mail:</label>
       <input type="text" id="usuario" name="usuario" required>
 
       <label for="contraseña">Contraseña:</label>
@@ -18,7 +18,17 @@
 
       <button type="submit">Ingresar</button>
     </form>
-    <p>¿No tenés cuenta? <a href="/Templates/Registro.html">Registrate acá</a></p>
+    <p>¿No tenés cuenta? <a href="{{ url_for('index') }}">Volver al inicio</a></p>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
   </div>
 </body>
 </html>

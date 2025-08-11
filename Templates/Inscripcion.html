@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Ficha de Solicitud de Ingreso</title>
-  <link rel="stylesheet" href="/Statics/StYles/register.css">
+  <link rel="stylesheet" href="/Static/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -11,6 +11,16 @@
     <header>
       <h1>FICHA DE<br><span>SOLICITUD DE INGRESO</span></h1>
     </header>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <h2 class="seccion">DATOS DEL ESTUDIANTE</h2>
     <div class="campos">
@@ -55,20 +65,22 @@
       <input type="text" name="tutor-telefono">
     </div>
 
-    <div class="footer">
-      <div class="info">
-        <p>📍 Calle Río Gallegos 456</p>
-        <p>📞 (55) 1234 5678</p>
-      </div>
+    <form method="POST" action="{{ url_for('inscripcion') }}">
+      <div class="footer">
+        <div class="info">
+          <p>📍 Calle Río Gallegos 456</p>
+          <p>📞 (55) 1234 5678</p>
+        </div>
 
-      <button type="submit">SIGUIENTE</button>
+        <button type="submit">SIGUIENTE</button>
 
-      <div class="redes">
-        <p>📷 @proa.rio3_ds</p>
-        <p>📧 rio3cerro.ds@escuelasproa.edu.ar</p>
-        <p>🌐 www.sitioincreible.com</p>
+        <div class="redes">
+          <p>📷 @proa.rio3_ds</p>
+          <p>📧 rio3cerro.ds@escuelasproa.edu.ar</p>
+          <p>🌐 www.sitioincreible.com</p>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </body>
 </html>

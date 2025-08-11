@@ -1,0 +1,228 @@
+body {
+  background-color: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.formulario {
+  max-width: 600px;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 0 10px #ccc;
+}
+
+header {
+  background-color: #1f1f1f;
+  padding: 10px 20px;
+  color: white;
+  text-align: left;
+}
+
+header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+header span {
+  font-size: 18px;
+  display: block;
+}
+
+.seccion {
+  color: #00b3b3;
+  border-bottom: 2px solid #00b3b3;
+  padding-bottom: 5px;
+  margin-top: 25px;
+}
+
+.campos {
+  margin-top: 15px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.footer .info,
+.footer .redes {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.footer button {
+  background-color: #008b8b;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.footer button:hover {
+  background-color: #006666;
+}
+
+
+.inicio-contenedor {
+  max-width: 800px;
+  margin: 30px auto;
+  text-align: center;
+  background-color: #1f1f1f;
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.bienvenida {
+  background-color: #7ef3f3;
+  color: black;
+  padding: 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  border: 3px solid black;
+  display: inline-block;
+  margin-bottom: 25px;
+}
+
+.bienvenida h1 {
+  font-size: 40px;
+  margin: 0;
+  text-shadow: 2px 2px 0px #1f1f1f;
+}
+
+.titulo-ficha {
+  font-size: 22px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+.aclaracion {
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.aclaracion h2 {
+  color: #d6d6d6;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.aclaracion p {
+  font-size: 16px;
+  color: #f2f2f2;
+  line-height: 1.6;
+}
+
+.boton-inicio a {
+  display: inline-block;
+  background: linear-gradient(to right, #00d4ff, #5cd9e6);
+  padding: 12px 40px;
+  border-radius: 20px;
+  font-weight: bold;
+  color: black;
+  text-decoration: none;
+  font-size: 18px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.boton-inicio a:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para la página de login */
+.login-body {
+  background-color: #e0f7f7; /* fondo turquesa claro */
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-contenedor {
+  background-color: #a0eaea; /* turquesa más fuerte */
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 300px;
+  text-align: center;
+}
+
+.login-contenedor input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+}
+
+.login-contenedor button {
+  background-color: #008b8b;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.login-contenedor button:hover {
+  background-color: #006666;
+}
+
+.login-contenedor a {
+  color: #005f5f;
+  text-decoration: none;
+}
+
+/* Estilos para mensajes flash */
+.alert {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}

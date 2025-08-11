@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/Static/styles.css">
   <title>Inicio - Inscripción PROA</title>
 
 </head>
@@ -20,13 +21,14 @@
     <div class="aclaracion">
       <h2>ACLARACIÓN</h2>
       <p>
-        De primero a tercer año secundario recibimos chicos/as de cualquier institución cursada. <br />
-        De cuarto a sexto año, solo InterPRoA.
+        Estudiantes cursando: <br />
+        De 1º a 3º año de cualquir institución. <br />
+        De 4º a 6º año, unoicamnte InterPRoA.
       </p>
     </div>
 
     <div class="boton-inicio">
-      <a href="login.html">INICIAR</a>
+      <a href="{{ url_for('login') }}">INICIAR</a>
     </div>
   </div>
 </body>
