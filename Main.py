@@ -12,7 +12,7 @@ app.secret_key = 'tu_clave_secreta_aqui'  # Cambia esto por una clave segura
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'inscripciones_proa'
+app.config['MYSQL_DB'] = 'inscripciones'
 
 # Inicializar MySQL
 mysql = MySQL(app)
@@ -151,22 +151,3 @@ def verificar_conexion():
         print(f"❌ Error de conexión a MySQL: {str(e)}")
         print("💡 Asegúrate de que XAMPP esté corriendo y MySQL esté activo")
         return False
-
-# Manejo de errores
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-if __name__ == '__main__':
-    # Verificar conexión a MySQL al iniciar la aplicación
-    with app.app_context():
-        if verificar_conexion():
-            print("🚀 Iniciando aplicación Flask...")
-            # Ejecutar la aplicación en modo desarrollo
-            app.run(debug=True, host='0.0.0.0', port=5000)
-                else:
-            print("❌ No se pudo iniciar la aplicación debido a problemas de conexión")
