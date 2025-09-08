@@ -11,7 +11,8 @@ app.secret_key = 'tu_clave_secreta_aqui'  # Cambia esto por una clave segura
 # Configuración de MySQL (XAMPP)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'admin123'
+app.config['MYSQL_PORT'] = 3307
 app.config['MYSQL_DB'] = 'inscripciones'
 
 # Inicializar MySQL
