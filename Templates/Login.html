@@ -18,7 +18,7 @@
 
       <button type="submit">Ingresar</button>
     </form>
-    <p>¿No tenés cuenta? <a href="{{ url_for('index') }}">Volver al inicio</a></p>
+    <p>¿No tenés cuenta? <a href="{{ url_for('registro') }}">Crear cuenta</a></p>
     
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

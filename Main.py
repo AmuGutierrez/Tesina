@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
 import os
 from datetime import datetime
@@ -31,17 +32,80 @@ def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         contraseña = request.form['contraseña']
-        
-        # Validación simple (puedes mejorar esto con la base de datos)
-        if usuario == "proa" and contraseña == "1234":
-            session['logged_in'] = True
-            session['usuario'] = usuario
-            flash('¡Bienvenido al sistema de inscripciones!', 'success')
-            return redirect(url_for('inscripcion'))
-        else:
-            flash('Usuario o contraseña incorrectos', 'error')
+
+        try:
+            cur = mysql.connection.cursor()
+            # Buscar usuario por mail
+            cur.execute("""
+                SELECT id, nombre, apellido, mail, password
+                FROM usuarios
+                WHERE mail = %s
+            """, (usuario,))
+            user = cur.fetchone()
+            cur.close()
+
+            if user and check_password_hash(user[4], contraseña):
+                session['logged_in'] = True
+                session['usuario'] = user[3]
+                session['nombre'] = user[1]
+                session['apellido'] = user[2]
+                flash('¡Bienvenido al sistema de inscripciones!', 'success')
+                return redirect(url_for('inscripcion'))
+            else:
+                flash('Usuario o contraseña incorrectos', 'error')
+        except Exception as e:
+            flash(f'Error al iniciar sesión: {str(e)}', 'error')
     
     return render_template('Login.html')
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    """Registro de usuarios"""
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        apellido = request.form.get('apellido')
+        mail = request.form.get('mail')
+        password = request.form.get('password')
+
+        try:
+            cur = mysql.connection.cursor()
+            # Crear tabla usuarios si no existe
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS usuarios (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    apellido VARCHAR(100) NOT NULL,
+                    mail VARCHAR(120) NOT NULL UNIQUE,
+                    password VARCHAR(255) NOT NULL,
+                    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+
+            # Verificar si el mail ya existe
+            cur.execute("SELECT id FROM usuarios WHERE mail = %s", (mail,))
+            existente = cur.fetchone()
+            if existente:
+                cur.close()
+                flash('El correo ya está registrado', 'error')
+                return redirect(url_for('registro'))
+
+            hash_pwd = generate_password_hash(password)
+
+            # Insertar nuevo usuario
+            cur.execute("""
+                INSERT INTO usuarios (nombre, apellido, mail, password)
+                VALUES (%s, %s, %s, %s)
+            """, (nombre, apellido, mail, hash_pwd))
+            mysql.connection.commit()
+            cur.close()
+
+            flash('Registro exitoso. Ya podés iniciar sesión.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            mysql.connection.rollback()
+            flash(f'Error al registrar: {str(e)}', 'error')
+
+    return render_template('Registro.html')
 
 @app.route('/inscripcion', methods=['GET', 'POST'])
 def inscripcion():
