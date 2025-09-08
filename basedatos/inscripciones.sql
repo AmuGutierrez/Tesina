@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 01-09-2025 a las 14:37:05
+-- Tiempo de generación: 08-09-2025 a las 14:54:11
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,8 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `inscripciones`
 --
-CREATE DATABASE inscripciones;
-Use inscripciones; 
+
 -- --------------------------------------------------------
 
 --
@@ -34,15 +33,18 @@ CREATE TABLE `alumno` (
   `apellido` varchar(50) NOT NULL,
   `edad` int(3) NOT NULL,
   `dni` int(15) NOT NULL,
-  `domicilio` varchar(100) NOT NULL
+  `domicilio` varchar(100) NOT NULL,
+  `secundario` varchar(50) NOT NULL,
+  `repitente` int(50) NOT NULL,
+  `anio` int(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `alumno`
 --
 
-INSERT INTO `alumno` (`IDAlum`, `nombre`, `apellido`, `edad`, `dni`, `domicilio`) VALUES
-(1, 'Amulen', 'Gutierrez', 17, 48601791, 'Joaquin.v.gonzales');
+INSERT INTO `alumno` (`IDAlum`, `nombre`, `apellido`, `edad`, `dni`, `domicilio`, `secundario`, `repitente`, `anio`) VALUES
+(1, 'Amulen', 'Gutierrez', 17, 48601791, 'Joaquin.v.gonzales', '0', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -81,16 +83,24 @@ CREATE TABLE `tutores` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Estructura de tabla para la tabla `usuarios`
 --
 
-CREATE TABLE `usuario` (
-  `Idusuario` varchar(20) NOT NULL,
-  `nombre` varchar(20) NOT NULL,
-  `apellido` varchar(20) NOT NULL,
-  `mail` varchar(20) NOT NULL,
-  `password` varchar(20) NOT NULL
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `mail` varchar(120) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `creado_en` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `mail`, `password`, `creado_en`) VALUES
+(1, 'Amulen', 'Gutierrez', 'amulengut@gmail.com', 'scrypt:32768:8:1$P17lcHOWTBbmr472$b061a471363cb20b47f1446612705e455a429ee834f3b1e479609eea1359b4104091497d586c2af63cbd535a414b77f9797d783c1f00d2deb8fbed0f9ce94c6d', '2025-09-08 08:36:41');
 
 --
 -- Índices para tablas volcadas
@@ -118,10 +128,11 @@ ALTER TABLE `tutores`
   ADD UNIQUE KEY `IDTutor` (`IDTutor`);
 
 --
--- Indices de la tabla `usuario`
+-- Indices de la tabla `usuarios`
 --
-ALTER TABLE `usuario`
-  ADD PRIMARY KEY (`Idusuario`);
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `mail` (`mail`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -144,6 +155,12 @@ ALTER TABLE `inscripciones`
 --
 ALTER TABLE `tutores`
   MODIFY `IDTutor` int(50) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
