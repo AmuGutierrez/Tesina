@@ -140,14 +140,14 @@ def inscripcion():
             
             # Insertar datos del estudiante
             cur.execute("""
-                INSERT INTO estudiantes (nombre, apellido, edad, dni, secundario_cursado, 
-                repitente, domicilio, anio_cursado, fecha_inscripcion)
+                INSERT INTO estudiantes (nombre, apellido, edad, dni, domicilio, secundario_cursado, 
+                repitente, anio_cursado, fecha_inscripcion)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 datos_estudiante['nombre'], datos_estudiante['apellido'], 
-                datos_estudiante['edad'], datos_estudiante['dni'],
-                datos_estudiante['secundario'], datos_estudiante['repitente'],
-                datos_estudiante['domicilio'], datos_estudiante['anio'],
+                datos_estudiante['edad'], datos_estudiante['dni'], 
+                datos_estudiante['domicilio'], datos_estudiante['secundario_cursado'], 
+                datos_estudiante['repitente'], datos_estudiante['anio_cursado'],
                 datetime.now()
             ))
             
