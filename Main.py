@@ -115,62 +115,59 @@ def inscripcion():
         return redirect(url_for('login'))
     
     if request.method == 'POST':
-        # Obtener datos del formulario
         datos_estudiante = {
             'nombre': request.form.get('nombre'),
             'apellido': request.form.get('apellido'),
             'edad': request.form.get('edad'),
             'dni': request.form.get('dni'),
-            'secundario': request.form.get('secundario'),
+            'secundario_cursado': request.form.get('secundario_cursado'),
             'repitente': request.form.get('repitente'),
             'domicilio': request.form.get('domicilio'),
-            'anio': request.form.get('anio')
+            'anio_cursado': request.form.get('anio_cursado')
         }
-        
         datos_tutor = {
             'nombre': request.form.get('tutor-nombre'),
             'email': request.form.get('tutor-email'),
             'dni': request.form.get('tutor-dni'),
             'telefono': request.form.get('tutor-telefono')
         }
-        
         try:
-            # Guardar en la base de datos
             cur = mysql.connection.cursor()
-            
-            # Insertar datos del estudiante
+            cur.execute("SELECT id FROM alumno WHERE dni = %s", (datos_estudiante['dni'],))
+            existe = cur.fetchone()
+            if existe:
+                flash('Ya existe una inscripción con ese DNI.', 'error')
+                return render_template('Inscripcion.html')
             cur.execute("""
-                INSERT INTO estudiantes (nombre, apellido, edad, dni, domicilio, secundario_cursado, 
-                repitente, anio_cursado, fecha_inscripcion)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO alumno (nombre, apellido, edad, dni, secundario_cursado, repitente, domicilio, anio_cursado)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-                datos_estudiante['nombre'], datos_estudiante['apellido'], 
-                datos_estudiante['edad'], datos_estudiante['dni'], 
-                datos_estudiante['domicilio'], datos_estudiante['secundario_cursado'], 
-                datos_estudiante['repitente'], datos_estudiante['anio_cursado'],
-                datetime.now()
+                datos_estudiante['nombre'],
+                datos_estudiante['apellido'],
+                datos_estudiante['edad'],
+                datos_estudiante['dni'],
+                datos_estudiante['secundario_cursado'],
+                datos_estudiante['repitente'],
+                datos_estudiante['domicilio'],
+                datos_estudiante['anio_cursado']
             ))
-            
             estudiante_id = cur.lastrowid
-            
-            # Insertar datos del tutor
             cur.execute("""
                 INSERT INTO tutores (estudiante_id, nombre, email, dni, telefono)
                 VALUES (%s, %s, %s, %s, %s)
             """, (
-                estudiante_id, datos_tutor['nombre'], datos_tutor['email'],
-                datos_tutor['dni'], datos_tutor['telefono']
+                estudiante_id,
+                datos_tutor['nombre'],
+                datos_tutor['email'],
+                datos_tutor['dni'],
+                datos_tutor['telefono']
             ))
-            
             mysql.connection.commit()
             cur.close()
-            
-            flash('¡Inscripción realizada con éxito!', 'success')
-            return redirect(url_for('index'))
-            
+            # Redirigir al template de finalización
+            return render_template('Finalizacion.html')
         except Exception as e:
             flash(f'Error al procesar la inscripción: {str(e)}', 'error')
-            mysql.connection.rollback()
     
     return render_template('Inscripcion.html')
 
@@ -191,7 +188,7 @@ def admin():
         cur = mysql.connection.cursor()
         cur.execute("""
             SELECT e.*, t.nombre as tutor_nombre, t.email as tutor_email, t.telefono
-            FROM estudiantes e
+            FROM alumno e
             LEFT JOIN tutores t ON e.id = t.estudiante_id
             ORDER BY e.fecha_inscripcion DESC
         """)
