@@ -2,15 +2,76 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inscripción finalizada</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscripción Realizada</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .header {
+      background-color: #0a1744;
+      color: white;
+      padding: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #2ea9e5;
+      padding: 10px 30px;
+      border-radius: 50px;
+      border: 3px solid #000;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .subheader {
+      background-color: #1a2156;
+      color: #d4c69d;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 15px;
+    }
+
+    .message {
+      background-color: #0c0c28;
+      color: white;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .thanks {
+      background-color: #0c0c28;
+      color: #001144;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 20px;
+    }
+  </style>
 </head>
 <body>
-  <div class="finalizacion-contenedor">
-    <h1>¡Inscripción completada!</h1>
-    <p>Gracias por completar la ficha de solicitud de ingreso.<br>
-    Hemos recibido tus datos correctamente.</p>
-    <a href="{{ url_for('index') }}" class="boton-volver">Volver al inicio</a>
+  <div class="header">
+    <div class="badge">INSCRIPCIÓN REALIZADA</div>
+  </div>
+
+  <div class="subheader">
+    FICHA DE SOLICITUD DE INGRESO <br>
+    PROA RÍO TERCERO
+  </div>
+
+  <div class="message">
+    LA RESPUESTA FUE PROCESADA, AL MOMENTO DE TENER VACANTE, NOS COMUNICAREMOS CON USTED.
+  </div>
+
+  <div class="thanks">
+    ¡MUCHAS GRACIAS!
   </div>
 </body>
 </html>
