@@ -133,23 +133,21 @@ def inscripcion():
         }
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT id FROM alumno WHERE dni = %s", (datos_estudiante['dni'],))
+            cur.execute("SELECT IDAlum FROM alumno WHERE dni = %s", (datos_estudiante['dni'],))
             existe = cur.fetchone()
             if existe:
                 flash('Ya existe una inscripción con ese DNI.', 'error')
                 return render_template('Inscripcion.html')
+            
             cur.execute("""
-                INSERT INTO alumno (nombre, apellido, edad, dni, secundario_cursado, repitente, domicilio, anio_cursado)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO alumno (nombre, apellido, edad, dni, domicilio)
+                VALUES ( %s, %s, %s, %s, %s)
             """, (
                 datos_estudiante['nombre'],
                 datos_estudiante['apellido'],
                 datos_estudiante['edad'],
                 datos_estudiante['dni'],
-                datos_estudiante['secundario_cursado'],
-                datos_estudiante['repitente'],
                 datos_estudiante['domicilio'],
-                datos_estudiante['anio_cursado']
             ))
             estudiante_id = cur.lastrowid
             cur.execute("""
@@ -161,6 +159,21 @@ def inscripcion():
                 datos_tutor['email'],
                 datos_tutor['dni'],
                 datos_tutor['telefono']
+            ))
+            tutor_id = cur.lastrowid
+
+            # Insertar inscripción
+            cur.execute("""
+                INSERT INTO inscripciones (IDAlum, IdTutor, Escuela_procedente, Curso_ingresante, Repitente, Observaciones, fecha_inscripcion)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                estudiante_id,
+                tutor_id,
+                request.form.get('escuela_procedente'),
+                request.form.get('curso_ingresante'),
+                request.form.get('repitente'),
+                request.form.get('observaciones'),
+                datetime.now()  # Guarda la fecha y hora actual
             ))
             mysql.connection.commit()
             cur.close()

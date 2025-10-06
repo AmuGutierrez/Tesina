@@ -226,3 +226,48 @@ input {
   color: #0c5460;
   border: 1px solid #bee5eb;
 }
+
+   .badge {
+      display: inline-block;
+      background: #2ea9e5;
+      padding: 10px 30px;
+      border-radius: 50px;
+      border: 3px solid #000;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .subheader {
+      background-color: #1a2156;
+      color: #d4c69d;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 15px;
+    }
+
+    .message {
+      background-color: #0c0c28;
+      color: white;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .thanks {
+      background-color: #0c0c28;
+      color: #001144;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 20px;
+    }
+    input[type="text"], input[type="number"], input[type="email"], textarea {
+      background-color: #f0f8ff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      width: 90%;
+      box-sizing: border-box;
+
+    }
