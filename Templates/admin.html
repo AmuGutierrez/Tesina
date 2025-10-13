@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Inscripciones</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <h1>Listado de Inscripciones</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID Inscripción</th>
+        <th>Nombre Alumno</th>
+        <th>Apellido</th>
+        <th>DNI</th>
+        <th>Curso</th>
+        <th>Tutor</th>
+        <th>Email Tutor</th>
+        <th>Teléfono Tutor</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for insc in inscripciones %}
+      <tr>
+        <td>{{ insc.IDInscripcion }}</td>
+        <td>{{ insc.nombre }}</td>
+        <td>{{ insc.apellido }}</td>
+        <td>{{ insc.dni }}</td>
+        <td>{{ insc.Curso_ingresante }}</td>
+        <td>{{ insc.tutor_nombre }}</td>
+        <td>{{ insc.tutor_email }}</td>
+        <td>{{ insc.tutor_telefono }}</td>
+        <td>
+          <a href="{{ url_for('editar_tutor', id=insc.IdTutor) }}">Editar Tutor</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

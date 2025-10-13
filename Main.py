@@ -226,3 +226,39 @@ def verificar_conexion():
         print(f"❌ Error de conexión a MySQL: {str(e)}")
         print("💡 Asegúrate de que XAMPP esté corriendo y MySQL esté activo")
         return False
+@app.route('/admin')
+def admin():
+    """Panel de administración"""
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT i.IDInscripcion, a.nombre, a.apellido, a.dni, i.Curso_ingresante,
+               t.IDTutor as IdTutor, t.nombre as tutor_nombre, t.email as tutor_email, t.telefono as tutor_telefono
+        FROM inscripciones i
+        JOIN alumno a ON i.IDAlum = a.IDAlum
+        JOIN tutores t ON i.IdTutor = t.IDTutor
+        ORDER BY i.IDInscripcion DESC
+    """)
+    inscripciones = cur.fetchall()
+    cur.close()
+    return render_template('admin.html', inscripciones=inscripciones)
+
+@app.route('/editar_tutor/<int:id>', methods=['GET', 'POST'])
+def editar_tutor(id):
+    """Editar datos del tutor"""
+    cur = mysql.connection.cursor()
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        email = request.form['email']
+        dni = request.form['dni']
+        telefono = request.form['telefono']
+        cur.execute("""
+            UPDATE tutores SET nombre=%s, email=%s, dni=%s, telefono=%s WHERE IDTutor=%s
+        """, (nombre, email, dni, telefono, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('Datos actualizados correctamente', 'success')
+        return redirect(url_for('admin'))
+    cur.execute("SELECT * FROM tutores WHERE IDTutor=%s", (id,))
+    tutor = cur.fetchone()
+    cur.close()
+    return render_template('editar_tutor.html', tutor=tutor)

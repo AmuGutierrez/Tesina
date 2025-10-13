@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Datos del Tutor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <h1>Editar Datos del Tutor</h1>
+  <form method="POST">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" value="{{ tutor.nombre }}" required>
+    <label>Email:</label>
+    <input type="email" name="email" value="{{ tutor.email }}" required>
+    <label>DNI:</label>
+    <input type="text" name="dni" value="{{ tutor.dni }}" required>
+    <label>Teléfono:</label>
+    <input type="text" name="telefono" value="{{ tutor.telefono }}" required>
+    <button type="submit">Guardar Cambios</button>
+  </form>
+</body>
+</html>
