@@ -226,22 +226,7 @@ def verificar_conexion():
         print(f"❌ Error de conexión a MySQL: {str(e)}")
         print("💡 Asegúrate de que XAMPP esté corriendo y MySQL esté activo")
         return False
-@app.route('/admin')
-def admin():
-    """Panel de administración"""
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT i.IDInscripcion, a.nombre, a.apellido, a.dni, i.Curso_ingresante,
-               t.IDTutor as IdTutor, t.nombre as tutor_nombre, t.email as tutor_email, t.telefono as tutor_telefono
-        FROM inscripciones i
-        JOIN alumno a ON i.IDAlum = a.IDAlum
-        JOIN tutores t ON i.IdTutor = t.IDTutor
-        ORDER BY i.IDInscripcion DESC
-    """)
-    inscripciones = cur.fetchall()
-    cur.close()
-    return render_template('admin.html', inscripciones=inscripciones)
-
+    
 @app.route('/editar_tutor/<int:id>', methods=['GET', 'POST'])
 def editar_tutor(id):
     """Editar datos del tutor"""
@@ -262,3 +247,11 @@ def editar_tutor(id):
     tutor = cur.fetchone()
     cur.close()
     return render_template('editar_tutor.html', tutor=tutor)
+
+if __name__ == '__main__':
+    if verificar_conexion():
+        app.run(debug=True, port=5000)  # Cambia el puerto si es necesario
+    else:
+        print("No se pudo iniciar la aplicación debido a problemas de conexión con MySQL.")
+else:
+    print("La aplicación no se está ejecutando directamente, asegúrate de que el entorno esté configurado correctamente.")
