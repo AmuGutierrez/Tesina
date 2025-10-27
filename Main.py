@@ -193,7 +193,7 @@ def logout():
 
 @app.route('/admin')
 def admin():
-    """Panel de administración (solo para desarrollo)"""
+    """Panel de administración"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
