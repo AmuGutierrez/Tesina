@@ -4,7 +4,12 @@ body {
   margin: 0;
   padding: 0;
 }
-
+body {
+  background-image: url('https://prensa.cba.gov.ar/wp-content/uploads/2023/04/tercero2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: 
+}
 .formulario {
   max-width: 600px;
   margin-top: 30rem;
@@ -155,6 +160,77 @@ input {
 .boton-inicio a:hover {
   transform: scale(1.05);
 }
+/* Estilos para la página de opciones */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: url('https://prensa.cba.gov.ar/wp-content/uploads/2023/05/Schiaretti-habilita-la-escuela-Proa-2.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+  color: #007bff;
+  margin-bottom: 5px;
+}
+
+header p {
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.opciones {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  background: #f0f8ff;
+  border-radius: 15px;
+  padding: 20px;
+  width: 250px;
+  text-decoration: none;
+  color: #000;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.card img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.card h2 {
+  color: #007bff;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #555;
+}
 
 /* Estilos para la página de login */
 .login-body {
@@ -165,7 +241,12 @@ input {
   align-items: center;
   height: 100vh;
 }
-
+.login-body {
+  background-image: url('https://prensa.cba.gov.ar/wp-content/uploads/2023/04/tercero2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: 
+}
 .login-contenedor {
   background-color: #a0eaea; /* turquesa más fuerte */
   padding: 30px;
