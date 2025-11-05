@@ -276,3 +276,72 @@ def opciones():
     return render_template('opciones.html')
 
 
+# ...existing code...
+from MySQLdb.cursors import DictCursor
+# ...existing code...
+
+@app.route('/estado_inscripcion/<int:id>', methods=['GET'])
+def estado_inscripcion(id):
+    """Mostrar formulario para editar la ficha del alumno (IDAlum = id)"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    try:
+        cur = mysql.connection.cursor(DictCursor)
+        cur.execute("SELECT IDAlum, nombre, apellido, edad, dni, domicilio, secundario, repitente, anio FROM alumno WHERE IDAlum = %s", (id,))
+        alumno = cur.fetchone()
+        cur.close()
+
+        if not alumno:
+            flash('Alumno no encontrado', 'error')
+            return redirect(url_for('opciones'))
+
+        # Normalizar nombres para el template (opcional)
+        alumno.setdefault('secundario_cursado', alumno.get('secundario'))
+        alumno.setdefault('anio_cursado', alumno.get('anio'))
+
+        return render_template('estado_inscripcion.html', alumno=alumno)
+    except Exception as e:
+        flash(f'Error al cargar la ficha: {str(e)}', 'error')
+        return redirect(url_for('opciones'))
+
+
+@app.route('/editar_inscripcion/<int:id>', methods=['POST'])
+def editar_inscripcion(id):
+    """Guardar cambios de la ficha de inscripción del alumno"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    nombre = request.form.get('nombre')
+    apellido = request.form.get('apellido')
+    edad = request.form.get('edad') or None
+    dni = request.form.get('dni')
+    domicilio = request.form.get('domicilio')
+    secundario = request.form.get('secundario_cursado')  # en DB se llama 'secundario'
+    repitente = request.form.get('repitente')
+    anio = request.form.get('anio_cursado')  # en DB se llama 'anio'
+
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE alumno
+            SET nombre = %s,
+                apellido = %s,
+                edad = %s,
+                dni = %s,
+                domicilio = %s,
+                secundario = %s,
+                repitente = %s,
+                anio = %s
+            WHERE IDAlum = %s
+        """, (nombre, apellido, edad, dni, domicilio, secundario, repitente, anio, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('Ficha actualizada correctamente', 'success')
+        return redirect(url_for('estado_inscripcion', id=id))
+    except Exception as e:
+        flash(f'Error al guardar la ficha: {str(e)}', 'error')
+        return redirect(url_for('estado_inscripcion', id=id))
+# ...existing code...
