@@ -16,6 +16,7 @@ body {
   border: 1px solid #ccc;
   padding: 20px;
   box-shadow: 0 0 10px #ccc;
+  background-color: #f9f9f9;
 }
 
 header {
@@ -188,7 +189,7 @@ header h1 {
 }
 
 header p {
-  color: #333;
+  color: #ffffff;
   margin-bottom: 30px;
 }
 

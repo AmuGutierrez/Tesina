@@ -25,13 +25,12 @@ mysql = MySQL(app)
 def index():
     """Página de inicio"""
     return render_template('Index.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Página de login"""
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        contraseña = request.form['contraseña']
+        usuario = request.form.get('usuario')
+        contraseña = request.form.get('contraseña')
 
         try:
             cur = mysql.connection.cursor()
@@ -45,12 +44,21 @@ def login():
             cur.close()
 
             if user and check_password_hash(user[4], contraseña):
+                # Guardar sesión
                 session['logged_in'] = True
                 session['usuario'] = user[3]
                 session['nombre'] = user[1]
                 session['apellido'] = user[2]
-                flash('¡Bienvenido al sistema de inscripciones!', 'success')
-                return redirect(url_for('inscripcion'))
+
+                # Administrador único por email
+                if user[3].lower() == 'admin123@gmail.com':
+                    session['is_admin'] = True
+                    flash('Bienvenido administrador', 'success')
+                    return redirect(url_for('admin'))
+                else:
+                    session['is_admin'] = False
+                    flash('Bienvenido', 'success')
+                    return redirect(url_for('opciones'))
             else:
                 flash('Usuario o contraseña incorrectos', 'error')
         except Exception as e:
@@ -255,3 +263,16 @@ if __name__ == '__main__':
         print("No se pudo iniciar la aplicación debido a problemas de conexión con MySQL.")
 else:
     print("La aplicación no se está ejecutando directamente, asegúrate de que el entorno esté configurado correctamente.")
+
+@app.route('/opciones')
+def opciones():
+    """Panel de opciones para usuarios comunes"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión para acceder a esta página', 'error')
+        return redirect(url_for('login'))
+    # Si es admin redirige al panel de admin
+    if session.get('is_admin'):
+        return redirect(url_for('admin'))
+    return render_template('opciones.html')
+
+
