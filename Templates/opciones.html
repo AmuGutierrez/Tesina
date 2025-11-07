@@ -14,11 +14,18 @@
     </header>
 
     <div class="opciones">
-      <a href="/estado_inscripcion" class="card">
+    {% if alumno_id %}
+    <a href="{{ url_for('estado_inscripcion', id=alumno_id) }}" class="card">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="Estado de Inscripción">
-        <h2>Estado de Inscrpción</h2>
+        <h2>Estado de Inscripción</h2>
         <p>Consulta o modifica el estado de inscripción.</p>
+    </a>
+         <a href="/inscripcion" class="card">
+        <img src="https://i.pinimg.com/736x/89/39/c8/8939c815f01ffd36fbf1beb6ebfc25b0.jpg" alt="Ficha de pase">
+        <h2>Ficha de Pase de Alumno</h2>
+        <p>Completá la información para realizar el pase.</p>
       </a>
+    {% endif %}
 
       <a href="/inscripcion" class="card">
         <img src="https://i.pinimg.com/736x/89/39/c8/8939c815f01ffd36fbf1beb6ebfc25b0.jpg" alt="Ficha de pase">
@@ -26,6 +33,9 @@
         <p>Completá la información para realizar el pase.</p>
       </a>
     </div>
+
+
+</div>
   </div>
 </body>
 </html>

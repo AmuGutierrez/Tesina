@@ -266,19 +266,35 @@ else:
 
 @app.route('/opciones')
 def opciones():
-    """Panel de opciones para usuarios comunes"""
+    """Panel de opciones para usuarios"""
     if not session.get('logged_in'):
-        flash('Debes iniciar sesión para acceder a esta página', 'error')
+        flash('Debes iniciar sesión', 'error')
         return redirect(url_for('login'))
-    # Si es admin redirige al panel de admin
-    if session.get('is_admin'):
-        return redirect(url_for('admin'))
-    return render_template('opciones.html')
 
+    try:
+        cur = mysql.connection.cursor()
+        # Buscar el alumno usando el email del usuario en sesión
+        cur.execute("""
+            SELECT a.IDAlum 
+            FROM alumno a
+            JOIN usuarios u ON a.mail = u.mail
+            WHERE u.mail = %s
+        """, (session.get('usuario'),))
+        resultado = cur.fetchone()
+        cur.close()
 
-# ...existing code...
-from MySQLdb.cursors import DictCursor
-# ...existing code...
+        if resultado:
+            alumno_id = resultado[0]
+            return render_template('opciones.html', alumno_id=alumno_id)
+        else:
+            # Si no tiene inscripción previa
+            flash('No tienes una inscripción registrada', 'info')
+            return render_template('opciones.html', alumno_id=None)
+
+    except Exception as e:
+        flash(f'Error al cargar opciones: {str(e)}', 'error')
+        return render_template('opciones.html', alumno_id=None)
+
 
 @app.route('/estado_inscripcion/<int:id>', methods=['GET'])
 def estado_inscripcion(id):
@@ -344,4 +360,3 @@ def editar_inscripcion(id):
     except Exception as e:
         flash(f'Error al guardar la ficha: {str(e)}', 'error')
         return redirect(url_for('estado_inscripcion', id=id))
-# ...existing code...
