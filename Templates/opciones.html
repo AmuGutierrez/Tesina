@@ -1,41 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Opciones de Ingreso - PRoA</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opciones - PRoA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Bienvenido/a</h1>
-      <p>Seleccioná una opción para continuar</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>Bienvenido/a {{ session.get('nombre') }} {{ session.get('apellido') }}</h1>
+            <p>Seleccioná una opción para continuar</p>
+        </header>
 
-    <div class="opciones">
-    {% if alumno_id %}
-    <a href="{{ url_for('estado_inscripcion', id=alumno_id) }}" class="card">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="Estado de Inscripción">
-        <h2>Estado de Inscripción</h2>
-        <p>Consulta o modifica el estado de inscripción.</p>
-    </a>
-         <a href="/inscripcion" class="card">
-        <img src="https://i.pinimg.com/736x/89/39/c8/8939c815f01ffd36fbf1beb6ebfc25b0.jpg" alt="Ficha de pase">
-        <h2>Ficha de Pase de Alumno</h2>
-        <p>Completá la información para realizar el pase.</p>
-      </a>
-    {% endif %}
+        <div style="text-align: right; margin-top: 30px;">
+            <a href="{{ url_for('perfil') }}" style="background-color: #6c757d; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; margin-right: 10px;">
+                👤 Mi Perfil
+            </a>
+            <a href="{{ url_for('logout') }}" style="background-color: #dc3545; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px;">
+                🚪 Cerrar sesión
+            </a>
+        </div>
 
-      <a href="/inscripcion" class="card">
-        <img src="https://i.pinimg.com/736x/89/39/c8/8939c815f01ffd36fbf1beb6ebfc25b0.jpg" alt="Ficha de pase">
-        <h2>Ficha de Pase de Alumno</h2>
-        <p>Completá la información para realizar el pase.</p>
-      </a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="opciones-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+            
+            <!-- Botón para nueva inscripción -->
+            <a href="{{ url_for('inscripcion') }}" class="card">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png" alt="Nueva inscripción" style="width: 80px; height: 80px;">
+                <h2>Nueva Inscripción</h2>
+                <p>Inscribir un nuevo estudiante</p>
+            </a>
+
+        </div>
+
+        {% if alumnos %}
+            <h2 style="color: #007bff; margin-top: 40px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                Mis Estudiantes Inscritos ({{ alumnos|length }})
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                {% for alumno in alumnos %}
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h3 style="color: #007bff; margin-top: 0;">
+                        {{ alumno[1] }} {{ alumno[2] }}
+                    </h3>
+                    <p style="color: #666; margin: 5px 0;">
+                        <strong>DNI:</strong> {{ alumno[3] }}
+                    </p>
+                    <p style="color: #666; margin: 5px 0;">
+                        <strong>Curso:</strong> {{ alumno[4] if alumno[4] else 'No especificado' }}
+                    </p>
+                    <div style="margin-top: 15px;">
+                        <a href="{{ url_for('estado_inscripcion', id=alumno[0]) }}" 
+                           style="background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                            📋 Ver/Editar Ficha
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: center;">
+                <h3>📝 No hay inscripciones registradas</h3>
+                <p>Hacé clic en "Nueva Inscripción" para comenzar el proceso de inscripción de un estudiante.</p>
+            </div>
+        {% endif %}
+
     </div>
-
-
-</div>
-  </div>
 </body>
 </html>

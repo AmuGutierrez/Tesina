@@ -1,30 +1,31 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
-import os
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuración de la aplicación
-app.secret_key = 'tu_clave_secreta_aqui'  # Cambia esto por una clave segura
+# Configuración
+app.secret_key = 'tu_clave_secreta_muy_segura_2025'
 
-# Configuración de MySQL (XAMPP)
+# Configuración MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'admin123'
 app.config['MYSQL_PORT'] = 3307
 app.config['MYSQL_DB'] = 'inscripciones'
 
-# Inicializar MySQL
 mysql = MySQL(app)
 
-# Rutas de la aplicación
+# ==========================================
+# RUTAS PÚBLICAS
+# ==========================================
 
 @app.route('/')
 def index():
     """Página de inicio"""
     return render_template('Index.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Página de login"""
@@ -34,7 +35,6 @@ def login():
 
         try:
             cur = mysql.connection.cursor()
-            # Buscar usuario por mail
             cur.execute("""
                 SELECT id, nombre, apellido, mail, password
                 FROM usuarios
@@ -44,20 +44,20 @@ def login():
             cur.close()
 
             if user and check_password_hash(user[4], contraseña):
-                # Guardar sesión
                 session['logged_in'] = True
+                session['usuario_id'] = user[0]
                 session['usuario'] = user[3]
                 session['nombre'] = user[1]
                 session['apellido'] = user[2]
 
-                # Administrador único por email
+                # Verificar si es administrador
                 if user[3].lower() == 'admin123@gmail.com':
                     session['is_admin'] = True
                     flash('Bienvenido administrador', 'success')
                     return redirect(url_for('admin'))
                 else:
                     session['is_admin'] = False
-                    flash('Bienvenido', 'success')
+                    flash(f'Bienvenido/a {user[1]}', 'success')
                     return redirect(url_for('opciones'))
             else:
                 flash('Usuario o contraseña incorrectos', 'error')
@@ -68,31 +68,22 @@ def login():
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
-    """Registro de usuarios"""
+    """Registro de nuevos tutores"""
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         apellido = request.form.get('apellido')
         mail = request.form.get('mail')
         password = request.form.get('password')
+        dni = request.form.get('dni')
+        telefono = request.form.get('telefono')
+        domicilio = request.form.get('domicilio')
 
         try:
             cur = mysql.connection.cursor()
-            # Crear tabla usuarios si no existe
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS usuarios (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    nombre VARCHAR(100) NOT NULL,
-                    apellido VARCHAR(100) NOT NULL,
-                    mail VARCHAR(120) NOT NULL UNIQUE,
-                    password VARCHAR(255) NOT NULL,
-                    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """)
-
+            
             # Verificar si el mail ya existe
             cur.execute("SELECT id FROM usuarios WHERE mail = %s", (mail,))
-            existente = cur.fetchone()
-            if existente:
+            if cur.fetchone():
                 cur.close()
                 flash('El correo ya está registrado', 'error')
                 return redirect(url_for('registro'))
@@ -101,9 +92,9 @@ def registro():
 
             # Insertar nuevo usuario
             cur.execute("""
-                INSERT INTO usuarios (nombre, apellido, mail, password)
-                VALUES (%s, %s, %s, %s)
-            """, (nombre, apellido, mail, hash_pwd))
+                INSERT INTO usuarios (nombre, apellido, mail, password, dni, telefono, domicilio)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (nombre, apellido, mail, hash_pwd, dni, telefono, domicilio))
             mysql.connection.commit()
             cur.close()
 
@@ -115,83 +106,6 @@ def registro():
 
     return render_template('Registro.html')
 
-@app.route('/inscripcion', methods=['GET', 'POST'])
-def inscripcion():
-    """Página de inscripción"""
-    if not session.get('logged_in'):
-        flash('Debes iniciar sesión para acceder a esta página', 'error')
-        return redirect(url_for('login'))
-    
-    if request.method == 'POST':
-        datos_estudiante = {
-            'nombre': request.form.get('nombre'),
-            'apellido': request.form.get('apellido'),
-            'edad': request.form.get('edad'),
-            'dni': request.form.get('dni'),
-            'secundario_cursado': request.form.get('secundario_cursado'),
-            'repitente': request.form.get('repitente'),
-            'domicilio': request.form.get('domicilio'),
-            'anio_cursado': request.form.get('anio_cursado')
-        }
-        datos_tutor = {
-            'nombre': request.form.get('tutor-nombre'),
-            'email': request.form.get('tutor-email'),
-            'dni': request.form.get('tutor-dni'),
-            'telefono': request.form.get('tutor-telefono')
-        }
-        try:
-            cur = mysql.connection.cursor()
-            cur.execute("SELECT IDAlum FROM alumno WHERE dni = %s", (datos_estudiante['dni'],))
-            existe = cur.fetchone()
-            if existe:
-                flash('Ya existe una inscripción con ese DNI.', 'error')
-                return render_template('Inscripcion.html')
-            
-            cur.execute("""
-                INSERT INTO alumno (nombre, apellido, edad, dni, domicilio)
-                VALUES ( %s, %s, %s, %s, %s)
-            """, (
-                datos_estudiante['nombre'],
-                datos_estudiante['apellido'],
-                datos_estudiante['edad'],
-                datos_estudiante['dni'],
-                datos_estudiante['domicilio'],
-            ))
-            estudiante_id = cur.lastrowid
-            cur.execute("""
-                INSERT INTO tutores (estudiante_id, nombre, email, dni, telefono)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                estudiante_id,
-                datos_tutor['nombre'],
-                datos_tutor['email'],
-                datos_tutor['dni'],
-                datos_tutor['telefono']
-            ))
-            tutor_id = cur.lastrowid
-
-            # Insertar inscripción
-            cur.execute("""
-                INSERT INTO inscripciones (IDAlum, IdTutor, Escuela_procedente, Curso_ingresante, Repitente, Observaciones, fecha_inscripcion)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (
-                estudiante_id,
-                tutor_id,
-                request.form.get('escuela_procedente'),
-                request.form.get('curso_ingresante'),
-                request.form.get('repitente'),
-                request.form.get('observaciones'),
-                datetime.now()  # Guarda la fecha y hora actual
-            ))
-            mysql.connection.commit()
-            cur.close()
-            # Redirigir al template de finalización
-            return render_template('Finalizacion.html')
-        except Exception as e:
-            flash(f'Error al procesar la inscripción: {str(e)}', 'error')
-    
-    return render_template('Inscripcion.html')
-
 @app.route('/logout')
 def logout():
     """Cerrar sesión"""
@@ -199,31 +113,347 @@ def logout():
     flash('Has cerrado sesión correctamente', 'info')
     return redirect(url_for('index'))
 
+# ==========================================
+# RUTAS DE USUARIO (TUTOR)
+# ==========================================
+
+@app.route('/opciones')
+def opciones():
+    """Panel de opciones para tutores"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    try:
+        cur = mysql.connection.cursor()
+        # Obtener todos los alumnos del tutor actual
+        cur.execute("""
+            SELECT IDAlum, nombre, apellido, dni, curso_ingresante
+            FROM alumno
+            WHERE id_tutor = %s
+            ORDER BY fecha_inscripcion DESC
+        """, (session.get('usuario_id'),))
+        alumnos = cur.fetchall()
+        cur.close()
+
+        return render_template('opciones.html', alumnos=alumnos)
+
+    except Exception as e:
+        flash(f'Error al cargar opciones: {str(e)}', 'error')
+        return render_template('opciones.html', alumnos=[])
+
+@app.route('/inscripcion', methods=['GET', 'POST'])
+def inscripcion():
+    """Formulario de inscripción de alumno"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión para acceder a esta página', 'error')
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        # Datos del estudiante
+        nombre = request.form.get('nombre')
+        apellido = request.form.get('apellido')
+        edad = request.form.get('edad')
+        dni = request.form.get('dni')
+        domicilio = request.form.get('domicilio')
+        escuela_procedente = request.form.get('escuela_procedente')
+        curso_ingresante = request.form.get('curso_ingresante')
+        repitente = request.form.get('repitente')
+        anio_cursado = request.form.get('anio_cursado')
+        observaciones = request.form.get('observaciones')
+
+        try:
+            cur = mysql.connection.cursor()
+            
+            # Verificar si el DNI ya existe
+            cur.execute("SELECT IDAlum FROM alumno WHERE dni = %s", (dni,))
+            if cur.fetchone():
+                cur.close()
+                flash('Ya existe una inscripción con ese DNI.', 'error')
+                return render_template('Inscripcion.html')
+            
+            # Insertar alumno vinculado al tutor actual
+            cur.execute("""
+                INSERT INTO alumno (
+                    nombre, apellido, edad, dni, domicilio, 
+                    escuela_procedente, curso_ingresante, repitente, 
+                    anio_cursado, id_tutor
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                nombre, apellido, edad, dni, domicilio,
+                escuela_procedente, curso_ingresante, repitente,
+                anio_cursado, session.get('usuario_id')
+            ))
+            alumno_id = cur.lastrowid
+
+            # Crear relación en tabla tutores
+            cur.execute("""
+                INSERT INTO tutores (id_usuario, id_alumno)
+                VALUES (%s, %s)
+            """, (session.get('usuario_id'), alumno_id))
+
+            # Registrar inscripción
+            cur.execute("""
+                INSERT INTO inscripciones (
+                    IDAlum, IdTutor, fecha_inscripcion, 
+                    estado, observaciones
+                )
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                alumno_id, 
+                session.get('usuario_id'),
+                datetime.now(),
+                'En espera',
+                observaciones
+            ))
+
+            mysql.connection.commit()
+            cur.close()
+            
+            flash('Inscripción registrada exitosamente', 'success')
+            return render_template('Finalizacion.html')
+            
+        except Exception as e:
+            mysql.connection.rollback()
+            flash(f'Error al procesar la inscripción: {str(e)}', 'error')
+    
+    return render_template('Inscripcion.html')
+
+@app.route('/estado_inscripcion/<int:id>')
+def estado_inscripcion(id):
+    """Ver estado de inscripción de un alumno"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar que el alumno pertenece al tutor actual
+        cur.execute("""
+            SELECT a.*, i.estado, i.observaciones, i.fecha_inscripcion
+            FROM alumno a
+            LEFT JOIN inscripciones i ON a.IDAlum = i.IDAlum
+            WHERE a.IDAlum = %s AND a.id_tutor = %s
+        """, (id, session.get('usuario_id')))
+        
+        alumno = cur.fetchone()
+        cur.close()
+
+        if not alumno:
+            flash('Alumno no encontrado o no tienes permiso para verlo', 'error')
+            return redirect(url_for('opciones'))
+
+        # Convertir a diccionario para el template
+        alumno_dict = {
+            'IDAlum': alumno[0],
+            'nombre': alumno[1],
+            'apellido': alumno[2],
+            'edad': alumno[3],
+            'dni': alumno[4],
+            'domicilio': alumno[5],
+            'escuela_procedente': alumno[6],
+            'curso_ingresante': alumno[7],
+            'repitente': alumno[8],
+            'anio_cursado': alumno[9],
+            'estado': alumno[12] if len(alumno) > 12 else 'Sin estado',
+            'observaciones': alumno[13] if len(alumno) > 13 else '',
+            'fecha_inscripcion': alumno[14] if len(alumno) > 14 else alumno[11]
+        }
+
+        return render_template('estado_inscripcion.html', alumno=alumno_dict)
+        
+    except Exception as e:
+        flash(f'Error al cargar la ficha: {str(e)}', 'error')
+        return redirect(url_for('opciones'))
+
+@app.route('/editar_inscripcion/<int:id>', methods=['POST'])
+def editar_inscripcion(id):
+    """Editar datos de inscripción del alumno"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    nombre = request.form.get('nombre')
+    apellido = request.form.get('apellido')
+    edad = request.form.get('edad')
+    dni = request.form.get('dni')
+    domicilio = request.form.get('domicilio')
+    escuela_procedente = request.form.get('escuela_procedente')
+    curso_ingresante = request.form.get('curso_ingresante')
+    repitente = request.form.get('repitente')
+    anio_cursado = request.form.get('anio_cursado')
+
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar que el alumno pertenece al tutor
+        cur.execute("""
+            SELECT IDAlum FROM alumno 
+            WHERE IDAlum = %s AND id_tutor = %s
+        """, (id, session.get('usuario_id')))
+        
+        if not cur.fetchone():
+            cur.close()
+            flash('No tienes permiso para editar este alumno', 'error')
+            return redirect(url_for('opciones'))
+        
+        # Actualizar datos
+        cur.execute("""
+            UPDATE alumno
+            SET nombre = %s, apellido = %s, edad = %s, dni = %s,
+                domicilio = %s, escuela_procedente = %s, 
+                curso_ingresante = %s, repitente = %s, anio_cursado = %s
+            WHERE IDAlum = %s
+        """, (nombre, apellido, edad, dni, domicilio, 
+              escuela_procedente, curso_ingresante, repitente, 
+              anio_cursado, id))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Datos actualizados correctamente', 'success')
+        return redirect(url_for('estado_inscripcion', id=id))
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error al guardar: {str(e)}', 'error')
+        return redirect(url_for('estado_inscripcion', id=id))
+
+@app.route('/perfil', methods=['GET', 'POST'])
+def perfil():
+    """Ver y editar perfil del tutor"""
+    if not session.get('logged_in'):
+        flash('Debes iniciar sesión', 'error')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        apellido = request.form.get('apellido')
+        dni = request.form.get('dni')
+        telefono = request.form.get('telefono')
+        domicilio = request.form.get('domicilio')
+
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                UPDATE usuarios
+                SET nombre = %s, apellido = %s, dni = %s, 
+                    telefono = %s, domicilio = %s
+                WHERE id = %s
+            """, (nombre, apellido, dni, telefono, domicilio, 
+                  session.get('usuario_id')))
+            mysql.connection.commit()
+            cur.close()
+
+            # Actualizar sesión
+            session['nombre'] = nombre
+            session['apellido'] = apellido
+            
+            flash('Perfil actualizado correctamente', 'success')
+            return redirect(url_for('editar'))
+            
+        except Exception as e:
+            mysql.connection.rollback()
+            flash(f'Error al actualizar: {str(e)}', 'error')
+
+    # Obtener datos del usuario
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT nombre, apellido, mail, dni, telefono, domicilio
+            FROM usuarios WHERE id = %s
+        """, (session.get('usuario_id'),))
+        usuario = cur.fetchone()
+        cur.close()
+
+        usuario_dict = {
+            'nombre': usuario[0],
+            'apellido': usuario[1],
+            'mail': usuario[2],
+            'dni': usuario[3],
+            'telefono': usuario[4],
+            'domicilio': usuario[5]
+        }
+
+        return render_template('perfil.html', usuario=usuario_dict)
+        
+    except Exception as e:
+        flash(f'Error al cargar perfil: {str(e)}', 'error')
+        return redirect(url_for('opciones'))
+
+# ==========================================
+# RUTAS DE ADMINISTRADOR
+# ==========================================
+
 @app.route('/admin')
 def admin():
     """Panel de administración"""
-    if not session.get('logged_in'):
+    if not session.get('logged_in') or not session.get('is_admin'):
+        flash('Acceso denegado', 'error')
         return redirect(url_for('login'))
     
     try:
         cur = mysql.connection.cursor()
         cur.execute("""
-            SELECT e.*, t.nombre as tutor_nombre, t.email as tutor_email, t.telefono
-            FROM alumno e
-            LEFT JOIN tutores t ON e.id = t.estudiante_id
-            ORDER BY e.fecha_inscripcion DESC
+            SELECT 
+                i.IDInscripcion,
+                a.IDAlum,
+                a.nombre AS alumno_nombre,
+                a.apellido AS alumno_apellido,
+                a.dni AS alumno_dni,
+                a.curso_ingresante,
+                u.nombre AS tutor_nombre,
+                u.mail AS tutor_email,
+                u.telefono AS tutor_telefono,
+                i.estado,
+                i.fecha_inscripcion
+            FROM inscripciones i
+            JOIN alumno a ON i.IDAlum = a.IDAlum
+            JOIN usuarios u ON i.IdTutor = u.id
+            ORDER BY i.fecha_inscripcion DESC
         """)
         inscripciones = cur.fetchall()
         cur.close()
         
         return render_template('admin.html', inscripciones=inscripciones)
     except Exception as e:
-        flash(f'Error al cargar las inscripciones: {str(e)}', 'error')
+        flash(f'Error al cargar inscripciones: {str(e)}', 'error')
         return render_template('admin.html', inscripciones=[])
 
-# Función para verificar conexión a MySQL
+@app.route('/admin/cambiar_estado/<int:id>', methods=['POST'])
+def cambiar_estado(id):
+    """Cambiar estado de una inscripción"""
+    if not session.get('is_admin'):
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('login'))
+
+    nuevo_estado = request.form.get('estado')
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE inscripciones 
+            SET estado = %s 
+            WHERE IDInscripcion = %s
+        """, (nuevo_estado, id))
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Estado actualizado correctamente', 'success')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error al actualizar estado: {str(e)}', 'error')
+    
+    return redirect(url_for('admin'))
+
+# ==========================================
+# UTILIDADES
+# ==========================================
+
 def verificar_conexion():
-    """Verificar que la conexión a MySQL esté funcionando"""
+    """Verificar conexión a MySQL"""
     try:
         cur = mysql.connection.cursor()
         cur.execute("SELECT 1")
@@ -231,132 +461,16 @@ def verificar_conexion():
         print("✅ Conexión a MySQL exitosa")
         return True
     except Exception as e:
-        print(f"❌ Error de conexión a MySQL: {str(e)}")
-        print("💡 Asegúrate de que XAMPP esté corriendo y MySQL esté activo")
+        print(f"❌ Error de conexión: {str(e)}")
         return False
-    
-@app.route('/editar_tutor/<int:id>', methods=['GET', 'POST'])
-def editar_tutor(id):
-    """Editar datos del tutor"""
-    cur = mysql.connection.cursor()
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        email = request.form['email']
-        dni = request.form['dni']
-        telefono = request.form['telefono']
-        cur.execute("""
-            UPDATE tutores SET nombre=%s, email=%s, dni=%s, telefono=%s WHERE IDTutor=%s
-        """, (nombre, email, dni, telefono, id))
-        mysql.connection.commit()
-        cur.close()
-        flash('Datos actualizados correctamente', 'success')
-        return redirect(url_for('admin'))
-    cur.execute("SELECT * FROM tutores WHERE IDTutor=%s", (id,))
-    tutor = cur.fetchone()
-    cur.close()
-    return render_template('editar_tutor.html', tutor=tutor)
+
+# ==========================================
+# INICIAR APLICACIÓN
+# ==========================================
 
 if __name__ == '__main__':
     if verificar_conexion():
-        app.run(debug=True, port=5000)  # Cambia el puerto si es necesario
+        print("🚀 Iniciando aplicación Flask...")
+        app.run(debug=True, port=5000)
     else:
-        print("No se pudo iniciar la aplicación debido a problemas de conexión con MySQL.")
-else:
-    print("La aplicación no se está ejecutando directamente, asegúrate de que el entorno esté configurado correctamente.")
-
-@app.route('/opciones')
-def opciones():
-    """Panel de opciones para usuarios"""
-    if not session.get('logged_in'):
-        flash('Debes iniciar sesión', 'error')
-        return redirect(url_for('login'))
-
-    try:
-        cur = mysql.connection.cursor()
-        # Buscar el alumno usando el email del usuario en sesión
-        cur.execute("""
-            SELECT a.IDAlum 
-            FROM alumno a
-            JOIN usuarios u ON a.mail = u.mail
-            WHERE u.mail = %s
-        """, (session.get('usuario'),))
-        resultado = cur.fetchone()
-        cur.close()
-
-        if resultado:
-            alumno_id = resultado[0]
-            return render_template('opciones.html', alumno_id=alumno_id)
-        else:
-            # Si no tiene inscripción previa
-            flash('No tienes una inscripción registrada', 'info')
-            return render_template('opciones.html', alumno_id=None)
-
-    except Exception as e:
-        flash(f'Error al cargar opciones: {str(e)}', 'error')
-        return render_template('opciones.html', alumno_id=None)
-
-
-@app.route('/estado_inscripcion/<int:id>', methods=['GET'])
-def estado_inscripcion(id):
-    """Mostrar formulario para editar la ficha del alumno (IDAlum = id)"""
-    if not session.get('logged_in'):
-        flash('Debes iniciar sesión', 'error')
-        return redirect(url_for('login'))
-
-    try:
-        cur = mysql.connection.cursor(DictCursor)
-        cur.execute("SELECT IDAlum, nombre, apellido, edad, dni, domicilio, secundario, repitente, anio FROM alumno WHERE IDAlum = %s", (id,))
-        alumno = cur.fetchone()
-        cur.close()
-
-        if not alumno:
-            flash('Alumno no encontrado', 'error')
-            return redirect(url_for('opciones'))
-
-        # Normalizar nombres para el template (opcional)
-        alumno.setdefault('secundario_cursado', alumno.get('secundario'))
-        alumno.setdefault('anio_cursado', alumno.get('anio'))
-
-        return render_template('estado_inscripcion.html', alumno=alumno)
-    except Exception as e:
-        flash(f'Error al cargar la ficha: {str(e)}', 'error')
-        return redirect(url_for('opciones'))
-
-
-@app.route('/editar_inscripcion/<int:id>', methods=['POST'])
-def editar_inscripcion(id):
-    """Guardar cambios de la ficha de inscripción del alumno"""
-    if not session.get('logged_in'):
-        flash('Debes iniciar sesión', 'error')
-        return redirect(url_for('login'))
-
-    nombre = request.form.get('nombre')
-    apellido = request.form.get('apellido')
-    edad = request.form.get('edad') or None
-    dni = request.form.get('dni')
-    domicilio = request.form.get('domicilio')
-    secundario = request.form.get('secundario_cursado')  # en DB se llama 'secundario'
-    repitente = request.form.get('repitente')
-    anio = request.form.get('anio_cursado')  # en DB se llama 'anio'
-
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            UPDATE alumno
-            SET nombre = %s,
-                apellido = %s,
-                edad = %s,
-                dni = %s,
-                domicilio = %s,
-                secundario = %s,
-                repitente = %s,
-                anio = %s
-            WHERE IDAlum = %s
-        """, (nombre, apellido, edad, dni, domicilio, secundario, repitente, anio, id))
-        mysql.connection.commit()
-        cur.close()
-        flash('Ficha actualizada correctamente', 'success')
-        return redirect(url_for('estado_inscripcion', id=id))
-    except Exception as e:
-        flash(f'Error al guardar la ficha: {str(e)}', 'error')
-        return redirect(url_for('estado_inscripcion', id=id))
+        print("❌ No se pudo conectar a MySQL. Verifica XAMPP.")

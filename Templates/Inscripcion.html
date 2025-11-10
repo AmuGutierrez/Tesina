@@ -15,76 +15,96 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            {{ message }}
-          </div>
+          <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-  <form method="POST" action="{{ url_for('inscripcion') }}">
-    <h2 class="seccion">DATOS DEL ESTUDIANTE</h2>
-    <div class="campos">
-      <label>Nombre:</label>
-      <input type="text" name="nombre" required>
+    <form method="POST" action="{{ url_for('inscripcion') }}">
+      <h2 class="seccion">DATOS DEL ESTUDIANTE</h2>
+      <div class="campos">
+        <label>Nombre: *</label>
+        <input type="text" name="nombre" required>
 
-      <label>Apellido:</label>
-      <input type="text" name="apellido" required>
+        <label>Apellido: *</label>
+        <input type="text" name="apellido" required>
 
-      <label>Edad:</label>
-      <input type="number" name="edad" required>
+        <label>Edad: *</label>
+        <input type="number" name="edad" min="1" max="99" required>
 
-      <label>DNI:</label>
-      <input type="text" name="dni" required>
+        <label>DNI: *</label>
+        <input type="number" name="dni" required>
 
-      <label>Escuela de procedencia:</label>
-      <input type="text" name="escuela_procedente">
+        <label>Domicilio: *</label>
+        <input type="text" name="domicilio" required>
 
-      <label>Repitente / ¿Qué año repitió?:</label>
-      <input type="text" name="repitente">
+        <label>Escuela de procedencia:</label>
+        <input type="text" name="escuela_procedente" placeholder="Ejemplo: IPEM 288">
 
-      <label>Domicilio:</label>
-      <input type="text" name="domicilio">
+        <label>Curso al que ingresa: *</label>
+        <select name="curso_ingresante" required style="width: 95%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+          <option value="">Seleccionar...</option>
+          <option value="1º">1º año</option>
+          <option value="2º">2º año</option>
+          <option value="3º">3º año</option>
+          <option value="4º">4º año</option>
+          <option value="5º">5º año</option>
+          <option value="6º">6º año</option>
+        </select>
 
-      <label>Año cursado </label>
-      <input type="text" name="anio_cursado">
+        <label>¿Es repitente? / ¿Qué año repitió?</label>
+        <input type="text" name="repitente" placeholder="Ejemplo: Sí, 3º año o No">
 
-      <label>Curso al que ingresa:</label>
-      <input type="text" name="curso_ingresante">
+        <label>Año que cursó en 2024:</label>
+        <input type="text" name="anio_cursado" placeholder="Ejemplo: 3º">
 
-      <label>Observaciones:</label>
-      <textarea rows="4" style="width: 90%; max-width: 100%;" name="observaciones"></textarea>
-    </div>
+        <label>Observaciones:</label>
+        <textarea rows="4" name="observaciones" placeholder="Información adicional que considere relevante..."></textarea>
+      </div>
 
-    <h2 class="seccion">DATOS DEL TUTOR</h2>
+      <h2 class="seccion">DATOS DEL TUTOR</h2>
+      <p style="color: #666; font-size: 14px; margin-top: 10px;">
+        Los datos se completaron automáticamente con tu información de registro
+      </p>
 
-    <div class="campos">
-      <label>Nombre y Apellido:</label>
-      <input type="text" name="tutor-nombre">
+      <div class="campos">
+        <label>Nombre y Apellido:</label>
+        <input type="text" name="tutor-nombre" 
+               value="{{ usuario.nombre if usuario else '' }}" 
+               readonly style="background-color: #f0f0f0;">
 
-      <label>Correo electrónico:</label>
-      <input type="email" name="tutor-email">
+        <label>Correo electrónico:</label>
+        <input type="email" name="tutor-email" 
+               value="{{ usuario.email if usuario else '' }}" 
+               readonly style="background-color: #f0f0f0;">
 
-      <label>DNI:</label>
-      <input type="text" name="tutor-dni">
+        <label>DNI:</label>
+        <input type="text" name="tutor-dni" 
+               value="{{ usuario.dni if usuario else '' }}" 
+               readonly style="background-color: #f0f0f0;">
 
-      <label>Número de teléfono:</label>
-      <input type="text" name="tutor-telefono">
-    </div>
+        <label>Número de teléfono:</label>
+        <input type="text" name="tutor-telefono" 
+               value="{{ usuario.telefono if usuario else '' }}" 
+               readonly style="background-color: #f0f0f0;">
+      </div>
 
-   
+      <p style="color: #666; font-size: 13px; margin-top: 15px; text-align: center;">
+        Si necesitás modificar tus datos, podés hacerlo desde tu 
+        <a href="{{ url_for('perfil') }}" style="color: #008b8b; font-weight: bold;">perfil</a>
+      </p>
+
       <div class="footer">
         <div class="info">
           <p>📍 Calle Río Gallegos 456</p>
           <p>📞 (55) 1234 5678</p>
         </div>
 
-        <button type="submit">SIGUIENTE</button>
+        <button type="submit">ENVIAR INSCRIPCIÓN</button>
         
         <div class="redes">
           <p>📷 @proa.rio3_ds</p>
           <p>📧 rio3cerro.ds@escuelasproa.edu.ar</p>
-          <p>🌐 www.sitioincreible.com</p>
         </div>
       </div>
     </form>
