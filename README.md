@@ -1,6 +1,7 @@
 # Sistema de Ficha de Solicitud de Ingreso PRoA Río tercero
 
 Este proyecto es parte tesina, la cual tiene objetivo es el desarrollo de un sistema digital de fichas de inscripción para estudiantes que desean cambiarse de colegio al colegio PRoA en nivel secundario.
+
 This project is part of a dissertation, which aims to develop a digital enrollment form system for students who wish to transfer to PRoA high school.
 
 ## Objetivos del Proyecto
@@ -8,6 +9,7 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 - Digitalizar el proceso de pases escolares.
 - Recolectar datos completos de los estudiante y su tutor de una formas practica.
 - Facilitar la gestión y almacenamiento de solicitudes de ingreso para la escuela.
+
 
   
 - Digitize the school pass process.
@@ -20,6 +22,7 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 - Almacenamiento seguro en datos de los estudiantes inscriptos.
 - Interfaz amigable y responsive.
 
+
 - Student Application Form .
 - Secure data storage for enrolled students.
 - Friendly and responsive interface.
@@ -27,7 +30,11 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 ## Datos requeridos
 
 ### Del Alumno:
-
+- Nombre
+- Apellidos
+- Edas
+- ID
+- Escuela procedente
 - ¿Es repitente?/¿Que año?
 - Domicilio
 - Año cursado y cual querra ingresar
@@ -57,10 +64,11 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 ## Tecnologías a utilizar
 -Frontend: HTML, CSS, JavaScript
 -Backend: Python ( Flask) 
-@@ -41,11 +64,12 @@
+
 
 ## Licencia
 Este proyecto es parte de un trabajo académico. Uso libre para fines educativos tanto del colegio propio o no.
+
 This project is part of an academic work. Free use for educational purposes of the school itself or not.
 
 ## AUTORES
