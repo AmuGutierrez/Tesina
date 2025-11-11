@@ -27,7 +27,7 @@ This project is part of a dissertation, which aims to develop a digital enrollme
 ## Datos requeridos
 
 ### Del Alumno:
-@@ -26,13 +35,27 @@
+
 - ¿Es repitente?/¿Que año?
 - Domicilio
 - Año cursado y cual querra ingresar
