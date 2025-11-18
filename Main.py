@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -149,6 +150,27 @@ def inscripcion():
         flash('Debes iniciar sesión para acceder a esta página', 'error')
         return redirect(url_for('login'))
     
+    # Obtener datos del tutor para pre-llenar el formulario
+    usuario = None
+    if request.method == 'GET':
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                SELECT nombre, apellido, mail, dni, telefono
+                FROM usuarios WHERE id = %s
+            """, (session.get('usuario_id'),))
+            usuario_data = cur.fetchone()
+            cur.close()
+            if usuario_data:
+                usuario = {
+                    'nombre': f"{usuario_data[0]} {usuario_data[1]}",
+                    'email': usuario_data[2],
+                    'dni': usuario_data[3],
+                    'telefono': usuario_data[4]
+                }
+        except Exception as e:
+            print(f"Error al cargar datos del tutor: {str(e)}")
+    
     if request.method == 'POST':
         # Datos del estudiante
         nombre = request.form.get('nombre')
@@ -170,7 +192,7 @@ def inscripcion():
             if cur.fetchone():
                 cur.close()
                 flash('Ya existe una inscripción con ese DNI.', 'error')
-                return render_template('Inscripcion.html')
+                return render_template('Inscripcion.html', usuario=usuario)
             
             # Insertar alumno vinculado al tutor actual
             cur.execute("""
@@ -218,7 +240,7 @@ def inscripcion():
             mysql.connection.rollback()
             flash(f'Error al procesar la inscripción: {str(e)}', 'error')
     
-    return render_template('Inscripcion.html')
+    return render_template('Inscripcion.html', usuario=usuario)
 
 @app.route('/estado_inscripcion/<int:id>')
 def estado_inscripcion(id):
@@ -257,7 +279,7 @@ def estado_inscripcion(id):
             'curso_ingresante': alumno[7],
             'repitente': alumno[8],
             'anio_cursado': alumno[9],
-            'estado': alumno[12] if len(alumno) > 12 else 'Sin estado',
+            'estado': alumno[12] if len(alumno) > 12 and alumno[12] else 'En espera',
             'observaciones': alumno[13] if len(alumno) > 13 else '',
             'fecha_inscripcion': alumno[14] if len(alumno) > 14 else alumno[11]
         }
@@ -352,7 +374,7 @@ def perfil():
             session['apellido'] = apellido
             
             flash('Perfil actualizado correctamente', 'success')
-            return redirect(url_for('editar'))
+            return redirect(url_for('perfil'))
             
         except Exception as e:
             mysql.connection.rollback()
@@ -368,18 +390,23 @@ def perfil():
         usuario = cur.fetchone()
         cur.close()
 
+        if not usuario:
+            flash('Usuario no encontrado', 'error')
+            return redirect(url_for('opciones'))
+
         usuario_dict = {
-            'nombre': usuario[0],
-            'apellido': usuario[1],
-            'mail': usuario[2],
-            'dni': usuario[3],
-            'telefono': usuario[4],
-            'domicilio': usuario[5]
+            'nombre': usuario[0] or '',
+            'apellido': usuario[1] or '',
+            'mail': usuario[2] or '',
+            'dni': usuario[3] or '',
+            'telefono': usuario[4] or '',
+            'domicilio': usuario[5] or ''
         }
 
         return render_template('perfil.html', usuario=usuario_dict)
         
     except Exception as e:
+        print(f"Error en perfil: {str(e)}")  # Para debugging
         flash(f'Error al cargar perfil: {str(e)}', 'error')
         return redirect(url_for('opciones'))
 
@@ -448,6 +475,84 @@ def cambiar_estado(id):
     
     return redirect(url_for('admin'))
 
+@app.route('/admin/ficha/<int:id_alumno>')
+def admin_ficha_completa(id_alumno):
+    """Obtener ficha completa de un alumno para el administrador"""
+    if not session.get('is_admin'):
+        return {'success': False, 'error': 'Acceso denegado'}, 403
+    
+    try:
+        from flask import jsonify
+        cur = mysql.connection.cursor()
+        
+        # Obtener datos del alumno
+        cur.execute("""
+            SELECT IDAlum, nombre, apellido, edad, dni, domicilio,
+                   escuela_procedente, curso_ingresante, repitente, anio_cursado
+            FROM alumno
+            WHERE IDAlum = %s
+        """, (id_alumno,))
+        alumno_data = cur.fetchone()
+        
+        if not alumno_data:
+            cur.close()
+            return jsonify({'success': False, 'error': 'Alumno no encontrado'}), 404
+        
+        # Obtener datos de la inscripción
+        cur.execute("""
+            SELECT IDInscripcion, estado, observaciones, fecha_inscripcion
+            FROM inscripciones
+            WHERE IDAlum = %s
+        """, (id_alumno,))
+        inscripcion_data = cur.fetchone()
+        
+        # Obtener datos del tutor
+        cur.execute("""
+            SELECT u.nombre, u.apellido, u.dni, u.mail, u.telefono, u.domicilio
+            FROM usuarios u
+            JOIN alumno a ON a.id_tutor = u.id
+            WHERE a.IDAlum = %s
+        """, (id_alumno,))
+        tutor_data = cur.fetchone()
+        
+        cur.close()
+        
+        # Construir respuesta JSON
+        response = {
+            'success': True,
+            'alumno': {
+                'id': alumno_data[0],
+                'nombre': alumno_data[1],
+                'apellido': alumno_data[2],
+                'edad': alumno_data[3],
+                'dni': alumno_data[4],
+                'domicilio': alumno_data[5],
+                'escuela_procedente': alumno_data[6],
+                'curso_ingresante': alumno_data[7],
+                'repitente': alumno_data[8],
+                'anio_cursado': alumno_data[9]
+            },
+            'inscripcion': {
+                'id': inscripcion_data[0] if inscripcion_data else None,
+                'estado': inscripcion_data[1] if inscripcion_data else 'Sin estado',
+                'observaciones': inscripcion_data[2] if inscripcion_data else '',
+                'fecha': inscripcion_data[3].strftime('%d/%m/%Y %H:%M') if inscripcion_data and inscripcion_data[3] else 'N/A'
+            },
+            'tutor': {
+                'nombre': tutor_data[0] if tutor_data else '',
+                'apellido': tutor_data[1] if tutor_data else '',
+                'dni': tutor_data[2] if tutor_data else '',
+                'email': tutor_data[3] if tutor_data else '',
+                'telefono': tutor_data[4] if tutor_data else '',
+                'domicilio': tutor_data[5] if tutor_data else ''
+            }
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # ==========================================
 # UTILIDADES
 # ==========================================
@@ -464,13 +569,52 @@ def verificar_conexion():
         print(f"❌ Error de conexión: {str(e)}")
         return False
 
+def verificar_templates():
+    """Verificar que existan todos los templates necesarios"""
+    templates_necesarios = [
+        'Index.html',
+        'Login.html', 
+        'Registro.html',
+        'Inscripcion.html',
+        'Finalizacion.html',
+        'opciones.html',
+        'estado_inscripcion.html',
+        'perfil.html',
+        'admin.html'
+    ]
+    
+    templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+    faltantes = []
+    
+    for template in templates_necesarios:
+        ruta = os.path.join(templates_dir, template)
+        if not os.path.exists(ruta):
+            faltantes.append(template)
+    
+    if faltantes:
+        print(f"⚠️  ADVERTENCIA: Faltan los siguientes templates:")
+        for t in faltantes:
+            print(f"   - {t}")
+        return False
+    else:
+        print("✅ Todos los templates están presentes")
+        return True
+
 # ==========================================
 # INICIAR APLICACIÓN
 # ==========================================
 
 if __name__ == '__main__':
+    print("\n" + "="*50)
+    print("🚀 Iniciando Sistema de Inscripciones PROA")
+    print("="*50 + "\n")
+    
     if verificar_conexion():
-        print("🚀 Iniciando aplicación Flask...")
+        verificar_templates()
+        print("\n✅ Aplicación lista en: http://localhost:5000")
+        print("="*50 + "\n")
         app.run(debug=True, port=5000)
     else:
-        print("❌ No se pudo conectar a MySQL. Verifica XAMPP.")
+        print("\n❌ No se pudo conectar a MySQL.")
+        print("💡 Verifica que XAMPP esté corriendo y MySQL activo en puerto 3307")
+        print("="*50 + "\n")
